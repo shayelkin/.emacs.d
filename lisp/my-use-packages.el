@@ -169,6 +169,12 @@
 ;; (use-package ultra-scroll
 ;;   :config (ultra-scroll-mode))
 
+(use-package eglot
+  :bind ((:map eglot-mode-map
+               ("C-c i" . eglot-find-implementation)
+               ("C-c d" . eglot-find-declaration)
+               ("C-c t" . eglot-find-typeDeclaration))))
+
 (use-package makefile-executor
   :hook (makefile-mode . makefile-executor-mode))
 

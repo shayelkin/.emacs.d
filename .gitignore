@@ -1,30 +1,15 @@
-# Compiled
 *.elc
-
-# Packaging
+*.~undo-tree
+*~
+.DS_Store
 .cask/
 .eask/
 .eldev/
 .keg/
-
-# Built distribution
-dist/
-
-# Backup files
-*~
-
-# Undo-tree save-files
-*.~undo-tree
-
-# Native compilation cache
 /eln-cache/
-
-# Tramp connection history
-/tramp
-
-# Downloaded packaged
 /elpa/
-
-# Temporary files
 /org-persist/
+/tramp/
 /transient/
+/tree-sitter/
+dist/
