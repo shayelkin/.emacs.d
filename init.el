@@ -2,15 +2,13 @@
 
 ;; SPDX-License-Identifier: MIT
 ;; Author: Shay Elkin <shay@elkin.io>
-;; Package-Requires: ((emacs "30.0"))
+;; Package-Requires: ((emacs "30.1"))
 
 ;; This file is not part of GNU Emacs.
 
 ;;; Commentary:
 
 ;;; Code:
-
-;;; ======================================================================
 
 ;; Don't bother with backwards compatibility.
 (when (version< emacs-version "30")
@@ -35,21 +33,31 @@
     (setq exec-path (parse-colon-path path-string))
     (setenv "PATH" path-string)))
 
+(setq use-package-compute-statistics t
+      use-package-always-ensure t)
 
-(dolist (file
-         ;; Drop the extension so the compiled file would be loaded when exists.
-         (mapcar #'file-name-sans-extension
-                 (directory-files
-                  (expand-file-name "lisp" user-emacs-directory) t "\\.el\\'")))
-  (load file))
+
+;;; ======================================================================
+;;; My own packages
+;;; ======================================================================
+
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(require 'my-commands)
+(require 'my-misc)
+(require 'my-use-packages-built-in)
+(require 'my-use-packages)
+(require 'my-mode-line)
 
 
 ;;; ======================================================================
 ;;; Misc. customizations
 ;;; ======================================================================
 
+;; Small speed up by not bothering with VCs other than git
+(setq vc-handled-backends '(Git))
+
 (setq fill-column 100)
-(setq tab-always-indent 'complete)  ;; TAB indents, or if already indented, complete-at-point.
+(setq tab-always-indent 'complete)    ;; TAB indents, or if already indented, complete-at-point.
 
 (setq delete-by-moving-to-trash t)
 (setq blink-cursor-blinks 2)
@@ -70,11 +78,20 @@
 
 (add-hook 'text-mode-hook #'turn-on-auto-fill)
 (add-hook 'text-mode-hook #'visual-line-mode)
+
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'electric-pair-local-mode)
+
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 
 (setopt text-mode-ispell-word-completion nil)
+
+;; Sort the buffer list by major mode
+(add-hook 'buffer-menu-mode-hook (lambda () (Buffer-menu-sort 5)))
+
+(column-number-mode t)
+
+(setq fill-column 100)
 
 ;;; ======================================================================
 ;;; Key bindings
@@ -86,6 +103,8 @@
 ;; bind-key, package and use-package are the only packages that aren't
 ;; loaded with the `use-package' macro.
 (require 'bind-key)
+
+(bind-key "C-x C-s-f" #'find-file-other-window)
 
 (bind-key "M-j" (lambda ()
                   "Joins the next line to this, regardless of where the point is in the line."
@@ -121,13 +140,15 @@
   ;; Emulate a 3-button mouse (<mouse-2> is middle click, <mouse-3> right click)
   (keymap-set key-translation-map "s-<mouse-3>" "<mouse-2>"))
 
-;; Those are defined in my-commands:
+;; Those are defined in my-commands.
 (bind-key* "C-c C-i" #'indent-whole-buffer)
 
 (bind-keys* ("C-{" . shrink-frame-horizontally)
             ("C-}" . expand-frame-horizontally))
 
+
 (bind-key "<f8>" #'github-url-at-point)
+(bind-key "<f11>" #'ask-claude)
 
 
 ;;; ======================================================================
@@ -139,7 +160,6 @@
 (load-file custom-file)
 
 
-;;; ======================================================================
 
 (provide 'init)
 ;;; init.el ends here

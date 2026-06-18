@@ -2,7 +2,7 @@
 
 ;; SPDX-License-Identifier: MIT
 ;; Author: Shay Elkin <shay@elkin.io>
-;; Package-Requires: ((emacs "30.0"))
+;; Package-Requires: ((emacs "30.1"))
 
 ;; This file is not part of GNU Emacs.
 
@@ -99,8 +99,6 @@
   (unless (assoc (car entry) auto-mode-alist)
     (push entry auto-mode-alist)))
 
-
-;;; ======================================================================
 
 (provide 'my-misc)
 ;;; my-misc.el ends here
