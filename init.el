@@ -1,7 +1,7 @@
 ;;; init.el --- Emacs initialization file. -*- lexical-binding: t -*-
 
-;; SPDX-License-Identifier: MIT
 ;; Author: Shay Elkin <shay@elkin.io>
+;; SPDX-License-Identifier: MIT
 ;; Package-Requires: ((emacs "30.1"))
 
 ;; This file is not part of GNU Emacs.
@@ -12,7 +12,12 @@
 
 ;; Don't bother with backwards compatibility.
 (when (version< emacs-version "30")
-  (error "It is time to upgrade this Emacs installation!"))
+  (error "It is time to upgrade this Emacs!"))
+
+(eval-when-compile
+  (require 'use-package)
+  (require 'use-package-ensure))
+(require 'bind-key)
 
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -23,8 +28,8 @@
 (defconst on-mac-window-system (memq window-system '(mac ns))
   "Non-nil when running on macOS graphical environment.")
 
-;; Similar to `exec-path-from-shell', but just the essence, so hopefully faster.
-;; Works on bash and zsh which is all I care about.
+;; Similar to `exec-path-from-shell', but just the essence, so faster. Works on bash and zsh, which
+;; is all I care about.
 (when on-mac-window-system
   (let ((path-string (string-trim
                       (with-temp-buffer
@@ -36,92 +41,67 @@
 (setq use-package-compute-statistics t
       use-package-always-ensure t)
 
-
-;;; ======================================================================
-;;; My own packages
-;;; ======================================================================
+(require 'package)
+(setq package-archives '(("gnu" .  "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
 (require 'my-commands)
-(require 'my-misc)
-(require 'my-use-packages-built-in)
-(require 'my-use-packages)
 (require 'my-mode-line)
+(require 'my-prog-custom)
 
+(setq fill-column 99
+      delete-by-moving-to-trash t
+      blink-cursor-blinks 2
+      inhibit-startup-message t
+      mac-option-modifier 'meta
+      read-file-name-completion-ignore-case t
+      ring-bell-function 'ignore
+      show-trailing-whitespace t
+      create-lockfiles nil
+      ;; See https://debbugs.gnu.org/cgi/bugreport.cgi?msg=5;bug=55737
+      read-process-output-max 65535
+      use-dialog-box nil
+      use-short-answers t
+      ;; TAB indents, or if already indented, complete-at-point.
+      tab-always-indent 'complete
+      ;; Small speed up by not bothering with VCs other than git
+      vc-handled-backends '(Git))
 
-;;; ======================================================================
-;;; Misc. customizations
-;;; ======================================================================
-
-;; Small speed up by not bothering with VCs other than git
-(setq vc-handled-backends '(Git))
-
-(setq fill-column 100)
-(setq tab-always-indent 'complete)    ;; TAB indents, or if already indented, complete-at-point.
-
-(setq delete-by-moving-to-trash t)
-(setq blink-cursor-blinks 2)
-(setq inhibit-startup-message t)
-(setq mac-option-modifier 'meta)
-(setq read-file-name-completion-ignore-case t)
-(setq ring-bell-function 'ignore)
-(setq show-trailing-whitespace t)
-
-(setq create-lockfiles nil)
-(setq read-process-output-max 65535)  ;; https://debbugs.gnu.org/cgi/bugreport.cgi?msg=5;bug=55737
-
-(setq use-dialog-box nil)
-(setq use-short-answers t)
-
-(setq-default cursor-type 'hbar)
-(setq-default indent-tabs-mode nil)
+(setq-default cursor-type 'hbar
+              indent-tabs-mode nil)
+(add-hook 'before-save-hook #'delete-trailing-whitespace)
+(column-number-mode t)
 
 (add-hook 'text-mode-hook #'turn-on-auto-fill)
 (add-hook 'text-mode-hook #'visual-line-mode)
-
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-(add-hook 'prog-mode-hook #'electric-pair-local-mode)
-
-(add-hook 'before-save-hook #'delete-trailing-whitespace)
-
 (setopt text-mode-ispell-word-completion nil)
 
 ;; Sort the buffer list by major mode
 (add-hook 'buffer-menu-mode-hook (lambda () (Buffer-menu-sort 5)))
 
-(column-number-mode t)
+(setq frame-title-format '(buffer-file-name
+                           (:eval (abbreviate-file-name (buffer-file-name)))
+                           "%b"))
 
-(setq fill-column 100)
-
-;;; ======================================================================
-;;; Key bindings
-;;; ======================================================================
-
-;; In this file because we need my-commands to load first
-(require 'my-commands)
-
-;; bind-key, package and use-package are the only packages that aren't
-;; loaded with the `use-package' macro.
-(require 'bind-key)
-
-(bind-key "C-x C-s-f" #'find-file-other-window)
+;;;;; Key bindings
 
 (bind-key "M-j" (lambda ()
                   "Joins the next line to this, regardless of where the point is in the line."
                   (interactive) (join-line -1)))
 
-(bind-key "<f2>" #'revert-buffer-quick)
+(bind-keys ("C-x C-s-f" . find-file-other-window)
+           ("<f2>" . revert-buffer-quick)
+           ("C-c C-k" . kill-region)
+           ("C-w" . backward-kill-word)
+           ("C-z" . undo)
+           ;; M-> is S-M-. which is set to effectively undo M-.
+           ("M->" . pop-tag-mark)
+           ("C-h m" . manual-entry)
+ )
+
 (bind-key* "C-." #'completion-at-point)
-
-(bind-key "C-h m" #'manual-entry)
-
-(bind-keys
- ("C-c C-k"    . kill-region)
- ("C-w"        . backward-kill-word)
- ("C-z"        . undo))
-
-;; M-> is S-M-. which is set to effectively undo M-.
-(bind-key "M->" #'pop-tag-mark)
 
 ;; Unset mouse wheel changing font size: easy to accidently trigger.
 (keymap-global-unset "C-<wheel-up>")
@@ -135,30 +115,180 @@
 (when on-mac-window-system
   (keymap-global-unset  "s-t")
   (keymap-global-unset  "s-q")
-  (bind-key "s-<return>" #'toggle-frame-maximized)
-  (bind-key "s-w"        #'delete-frame)
+  (bind-keys ("s-<return>" . 'toggle-frame-maximized)
+             ("s-w" . delete-frame))
   ;; Emulate a 3-button mouse (<mouse-2> is middle click, <mouse-3> right click)
   (keymap-set key-translation-map "s-<mouse-3>" "<mouse-2>"))
 
-;; Those are defined in my-commands.
-(bind-key* "C-c C-i" #'indent-whole-buffer)
+;;;;;
 
-(bind-keys* ("C-{" . shrink-frame-horizontally)
-            ("C-}" . expand-frame-horizontally))
+(use-package server
+  :config (server-start))
+
+(use-package windmove
+  :config (windmove-default-keybindings))
+
+(use-package paren
+  :config (show-paren-mode))
+
+(use-package sr-speedbar
+  ;; Don't :after speedbar, as then use-package won't bind-key. Instead, :defer
+  ;; the speedbar package below.
+  :custom (sr-speedbar-use-frame-root-window t)
+  :commands sr-speed-bar-toggle
+  :bind ("<f10>" . sr-speedbar-toggle))
+
+(use-package speedbar
+  :defer t   ;; See comment on the use-package stanza for `sr-speedbar'.
+  :custom (speedbar-show-unknown-files t))
+
+;; `markdown-ts-mode' exists, but markdown-mode has better ergonomics today.
+(use-package markdown-mode
+  :mode "\\.md\\'"
+  :custom
+  (markdown-header-scaling t)
+  (markdown-header-scaling-values '(1.6 1.3 1.1 1.0 1.0 1.0))
+  ;; Make the default font for markdown buffers variable-pitch
+  ;; :hook (markdown-mode . (lambda ()
+  ;;                          (setq buffer-face-mode-face '(:inherit variable-pitch :height 1.2))
+  ;;                          (buffer-face-mode)))
+  )
+
+(use-package auto-dim-other-buffers
+  ;; There's massive speedup from starting this in `after-init-hook', but doing it there
+  ;; would override a face if set by a theme loaded earlier. Explicitly save and restore it.
+  :hook (after-init . (lambda ()
+                        (let ((bg (face-attribute 'auto-dim-other-buffers :background)))
+                          (auto-dim-other-buffers-mode)
+                          (set-face-attribute 'auto-dim-other-buffers nil :background bg)))))
+
+;; Corfu for in-buffer completions, Vertico for mini-buffer completions
+(use-package corfu
+  :config
+  (global-corfu-mode)
+  ;; Show corfu-info-documentation in a popup
+  (corfu-popupinfo-mode))
+
+(use-package vertico
+  :config (vertico-mode))
+
+(use-package marginalia
+  :after vertico
+  :config (marginalia-mode)
+  :bind ((:map minibuffer-local-map ("M-A" . marginalia-cycle))
+         (:map completion-list-mode-map ("M-A" . marginalia-cycle)))
+  ;; :bind implies defer, but this need to be started not only in response
+  ;; to the defined keybindings
+  :demand t)
+
+(use-package yasnippet
+  :defer t)
+
+(use-package smtpmail
+  :autoload smtpmail-send-it
+  :custom
+  (send-mail-function 'smtpmail-send-it)
+  (smtpmail-smtp-server "smtp.gmail.com")
+  (smtpmail-smtp-service 465)
+  (smtpmail-stream-type 'ssl)
+  (smtpmail-servers-requiring-authorization "\\.gmail\\.com"))
 
 
-(bind-key "<f8>" #'github-url-at-point)
-(bind-key "<f11>" #'ask-claude)
+ ;; Buttonize URLs and e-mail addresses.
+(use-package goto-addr
+  :config (global-goto-address-mode))
+
+(use-package flyspell
+  :hook ((text-mode . flyspell-mode)
+         (prog-mode . flyspell-prog-mode)))
+
+(use-package which-key
+  :config (which-key-mode))
+
+(use-package which-func
+  :config
+  (setq which-func-unknown "")
+  ;; Drop the brackets
+  (when (equal (car which-func-format) "[")
+    (setq which-func-format (cadr which-func-format)))
+  :custom-face (which-func ((t (:inherit nil))))
+  ;; Package is called `which-func', but mode is `which-function-mode'
+  :hook ((c++-ts-mode java-ts-mode js-ts-mode) . which-function-mode))
+
+(use-package magit
+  :bind ("C-x g" . magit-status)
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+  (magit-section-initial-visibility-alist '((stashes . show)
+                                            (recent . show)
+                                            (unpushed . show)))
+  (magit-status-margin '(t age magit-log-margin-width nil 18))
+  :hook (git-commit-setup . (lambda () (setq-local fill-column 72)))
+  :config (magit-add-section-hook 'magit-status-sections-hook
+                                  'magit-insert-stashes
+                                  'magit-insert-worktrees t))
+
+(use-package diff-hl
+  :after magit
+  :config (global-diff-hl-mode)
+  :hook ((magit-pre-refresh  . diff-hl-magit-pre-refresh)
+         (magit-post-refresh . diff-hl-magit-post-refresh)))
+
+(use-package vterm
+  :bind ("<f12>" . vterm-other-window))
+
+(use-package deadgrep
+  :ensure-system-package (rg . ripgrep)
+  :bind ("<f3>" . deadgrep))
+
+(use-package dash-at-point
+  :if on-mac-window-system
+  :ensure-system-package "/Applications/Dash.app"
+  :bind ("C-?" . dash-at-point))
+
+;;;;; Fonts ;;;;;
+
+(set-charset-priority 'unicode)
+
+(when (display-multi-font-p)
+  (set-fontset-font t nil (font-spec :family "Noto Sans Symbols") nil :append)
+  (set-fontset-font t nil (font-spec :family "Noto Sans Symbols 2") nil :append))
+
+(set-face-attribute 'default nil :family "Comic Code")
+(set-face-attribute 'variable-pitch nil :family "Noto Sans")
+
+;;;;; Text (terminal) frames ;;;;
+
+(defun my--hide-menu-bar-on-text-frames (&optional frame)
+  "Toggle the menu bar based on FRAME being text-only or graphical."
+  (let ((frame (or frame (selected-frame))))
+    (set-frame-parameter frame 'menu-bar-lines
+                         (if (display-graphic-p frame) 1 0))))
+
+(add-hook 'after-make-frame-functions #'my--hide-menu-bar-on-text-frames)
+;; Also apply to the already created initial frame.
+(dolist (frame (frame-list))
+  (my--hide-menu-bar-on-text-frames frame))
+
+(use-package xt-mouse
+  :commands xterm-mouse-mode
+  :init
+  ;; can't use `:hook', as after-make-frame-functions doesn't have a -hook suffix.
+  (add-hook 'after-make-frame-functions (lambda (&optional frame)
+                                          (unless (or xterm-mouse-mode
+                                                      (display-graphic-p frame))
+                                            (xterm-mouse-mode)))))
 
 
-;;; ======================================================================
-;;; Custom file
-;;; ======================================================================
 
-(setq custom-file
-      (expand-file-name "custom.el" user-emacs-directory))
+
+;; Split the inital frame
+(when (< split-width-threshold (frame-parameter nil 'width))
+  (split-window-horizontally))
+
+;; Custom file
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load-file custom-file)
-
 
 
 (provide 'init)

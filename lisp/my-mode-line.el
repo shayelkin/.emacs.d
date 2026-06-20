@@ -1,15 +1,16 @@
 ;;; my-mode-line.el --- Mode line customizations. -*- lexical-binding: t -*-
 
-;; SPDX-License-Identifier: MIT
 ;; Author: Shay Elkin <shay@elkin.io>
-;; Package-Requires: ((emacs "30.1") (nyan-mode "1.1.3"))
+;; Package-Requires: ((emacs "30.1")
+;;                    (nyan-mode "1.1.3"))
+;; SPDX-License-Identifier: MIT
 
 ;; This file is not part of GNU Emacs.
 
 ;;; Commentary:
 
-;; My most extenstive customization to Emacs: a more sparse mode-line (inspired by mood-line),
-;; with nyan-mode scroll bar between the left and right parts.
+;; My most extenstive customization to Emacs: a more sparse mode-line, inspired by `mood-line',
+;; with a `nyan-mode' scroll bar between the left and right parts.
 
 ;;; Code:
 

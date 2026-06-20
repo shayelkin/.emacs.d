@@ -1,8 +1,9 @@
-;;; my-commands.el --- Useful commands for Emacs. -*- lexical-binding: t -*-
+;;; my-commands.el --- Misc. commands for Emacs. -*- lexical-binding: t -*-
 
-;; SPDX-License-Identifier: MIT
 ;; Author: Shay Elkin <shay@elkin.io>
-;; Package-Requires: ((emacs "30.1"))
+;; Package-Requires: ((emacs "30.1")
+;;                    (magit "2.90.0"))
+;; SPDX-License-Identifier: MIT
 
 ;; This file is not part of GNU Emacs.
 
@@ -10,10 +11,14 @@
 
 ;;; Code:
 
+(require 'bind-key)
+
 (defun indent-whole-buffer ()
   "Indent the whole buffer."
   (interactive)
   (indent-region (point-min) (point-max) nil))
+
+(bind-key* "C-c C-i" #'indent-whole-buffer)
 
 (defun rename-file-and-buffer (new-name)
   "Renames both the current buffer and the file it's visiting to NEW-NAME."
@@ -30,10 +35,7 @@
           (set-visited-file-name new-name)
           (set-buffer-modified-p nil))))))
 
-
-;;; ======================================================================
-;;; Generate a GitHub link for the current position
-;;; ======================================================================
+;;;;; Generate a GitHub link for the current position ;;;;;
 
 (defun my--github-remote-urls ()
   "Return the URLs for the current buffer's git remotes that are hosted on GitHub."
@@ -68,10 +70,9 @@
     (when (called-interactively-p 'interactive)
       (message "Can't find a GitHub hosted remote for the current buffer"))))
 
+(bind-key "<f8>" #'github-url-at-point)
 
-;;; ======================================================================
-;;; Add/remove window from a frame, keeping existing windows the same size
-;;; ======================================================================
+;;;;; Add/remove window from a frame, while keeping existing windows the same size ;;;;;
 
 (defun shrink-frame-horizontally (&optional window)
   "Delete the window to the right of WINDOW.
@@ -109,18 +110,17 @@ When on a window system, also shrink the frame by the size of the deleted window
          (expand-by (window-total-width window))
          (original-frame-width (frame-width frame)))
     (when window-system
-      ;; set-frame-width first, to have window and the new window
-      ;; be the same size
+      ;; set-frame-width first, to have window and the new window be the same size
       (set-frame-width frame (+ original-frame-width expand-by))
       (my--move-frame-left-if-needed))
     (unless (split-window-right nil window)
       (set-frame-width frame original-frame-width)
       (message "Failed to create new window"))))
 
+(bind-keys* ("C-{" . shrink-frame-horizontally)
+            ("C-}" . expand-frame-horizontally))
 
-;;; ======================================================================
-;;; Query Claude and show the result in a buffer
-;;; ======================================================================
+;;;;; Query Claude and show the result in a buffer ;;;;;
 
 (defcustom ask-claude-model "sonnet"
   "Model name passed to \"claude --model\".
@@ -167,6 +167,8 @@ When the region is active its contents are used as the default PROMPT."
       ;; claude reads stdin; close it so it doesn't wait for input.
       (process-send-eof proc))
     (display-buffer buffer)))
+
+(bind-key "<f11>" #'ask-claude)
 
 
 (provide 'my-commands)
