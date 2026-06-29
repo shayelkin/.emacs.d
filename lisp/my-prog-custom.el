@@ -133,7 +133,8 @@
                  ("\\.ts\\'"       . typescript-ts-mode)
                  ("\\.tsx\\'"      . tsx-ts-mode)
                  ("\\.heex\\'"     . heex-ts-mode)
-                 ("\\.exs?\\'"     . elixir-ts-mode)))
+                 ("\\.exs?\\'"     . elixir-ts-mode)
+                 ("\\.mjs\\'"      . js-ts-mode)))
   (unless (assoc (car entry) auto-mode-alist)
     (push entry auto-mode-alist)))
 
