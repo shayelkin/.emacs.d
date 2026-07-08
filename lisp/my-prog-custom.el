@@ -32,6 +32,9 @@
 (use-package makefile-executor
   :hook (makefile-mode . makefile-executor-mode))
 
+(use-package python-mode
+  :magic ("\\`#!.*\\<uv run --script\\>" . python-ts-mode))
+
 (use-package uv-mode
   :hook ((python-ts-mode python-mode) . uv-mode-auto-activate-hook))
 

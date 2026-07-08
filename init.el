@@ -51,8 +51,7 @@
 (require 'my-mode-line)
 (require 'my-prog-custom)
 
-(setq fill-column 99
-      delete-by-moving-to-trash t
+(setq delete-by-moving-to-trash t
       blink-cursor-blinks 2
       inhibit-startup-message t
       mac-option-modifier 'meta
@@ -70,7 +69,8 @@
       vc-handled-backends '(Git))
 
 (setq-default cursor-type 'hbar
-              indent-tabs-mode nil)
+              indent-tabs-mode nil
+              fill-column 99)
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (column-number-mode t)
 
