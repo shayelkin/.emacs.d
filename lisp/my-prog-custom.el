@@ -47,9 +47,7 @@
   :mode "\\.pl\\'")
 
 (use-package protobuf-ts-mode
-  :mode "\\.proto\\'"
-  :config (add-to-list 'treesit-language-source-alist
-                       '(proto "https://github.com/mitchellh/tree-sitter-proto")))
+  :mode "\\.proto\\'")
 
 (use-package awk-ts-mode
   :mode "\\.[mg]?awk\\'")
@@ -58,11 +56,7 @@
   :mode "\\.sc\\(ala\\)?\\'" "\\.sbt\\'")
 
 (use-package swift-ts-mode
-  :ensure nil
   :mode "\\.swift\\'")
-;; To build tree-sitter-swift:
-;; 1. https://github.com/alex-pinkus/tree-sitter-swift/blob/main/README.md#where-is-your-parserc
-;; 2. `cc -fPIC -c -I. -shared parser.c scanner.c -o ~/.config/emacs/tree-sitter/tree-sitter-swift.dylib`
 
 (use-package terraform-mode
   :mode "\\.t\\(f\\(vars\\)?\\|ofu\\)\\'")
@@ -105,6 +99,41 @@
 
 (setq treesit-extra-load-path '("/usr/local/lib"))
 (setopt treesit-font-lock-level 2)
+
+(setq treesit-language-source-alist
+      '((awk        "https://github.com/Beaglefoot/tree-sitter-awk")
+        (bash       "https://github.com/tree-sitter/tree-sitter-bash")
+        (c          "https://github.com/tree-sitter/tree-sitter-c")
+        (c-sharp    "https://github.com/tree-sitter/tree-sitter-c-sharp")
+        (cmake      "https://github.com/uyha/tree-sitter-cmake")
+        (cpp        "https://github.com/tree-sitter/tree-sitter-cpp")
+        (css        "https://github.com/tree-sitter/tree-sitter-css")
+        (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
+        (elixir     "https://github.com/elixir-lang/tree-sitter-elixir")
+        (go         "https://github.com/tree-sitter/tree-sitter-go")
+        (gomod      "https://github.com/camdencheek/tree-sitter-go-mod")
+        (html       "https://github.com/tree-sitter/tree-sitter-html")
+        (java       "https://github.com/tree-sitter/tree-sitter-java")
+        (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
+        (jsdoc      "https://github.com/tree-sitter/tree-sitter-jsdoc")
+        (json       "https://github.com/tree-sitter/tree-sitter-json")
+        (lua        "https://github.com/tree-sitter-grammars/tree-sitter-lua")
+        (make       "https://github.com/alemuller/tree-sitter-make")
+        (markdown   "https://github.com/tree-sitter-grammars/tree-sitter-markdown" "split_parser" "tree-sitter-markdown/src")
+        (perl       "https://github.com/tree-sitter-perl/tree-sitter-perl" "release")
+        (php        "https://github.com/tree-sitter/tree-sitter-php" nil "php/src")
+        (phpdoc     "https://github.com/claytonrcarter/tree-sitter-phpdoc")
+        (pod        "https://github.com/tree-sitter-perl/tree-sitter-pod" "release")
+        (proto      "https://github.com/mitchellh/tree-sitter-proto")
+        (python     "https://github.com/tree-sitter/tree-sitter-python")
+        (ruby       "https://github.com/tree-sitter/tree-sitter-ruby")
+        (rust       "https://github.com/tree-sitter/tree-sitter-rust")
+        (scala      "https://github.com/tree-sitter/tree-sitter-scala")
+        (swift      "https://github.com/alex-pinkus/tree-sitter-swift" "with-generated-files")
+        (toml       "https://github.com/tree-sitter-grammars/tree-sitter-toml")
+        (tsx        "https://github.com/tree-sitter/tree-sitter-typescript" nil "tsx/src")
+        (typescript "https://github.com/tree-sitter/tree-sitter-typescript" nil "typescript/src")
+        (yaml       "https://github.com/tree-sitter-grammars/tree-sitter-yaml")))
 
 ;; `treesit-auto' is slow to load. Simply define major-mode-remap-alist for the
 ;; built-in modes instead:
