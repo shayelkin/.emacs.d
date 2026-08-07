@@ -64,8 +64,7 @@
                                 (line-number-at-pos))))
       (progn
         (when (called-interactively-p 'interactive)
-          (message github-url))
-        (kill-new github-url)
+          (browse-url github-url))
         github-url)
     (when (called-interactively-p 'interactive)
       (message "Can't find a GitHub hosted remote for the current buffer"))))

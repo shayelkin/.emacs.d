@@ -15,7 +15,6 @@
 
 (require 'bind-key)
 
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
 (add-hook 'prog-mode-hook #'electric-pair-local-mode)
 
 (setq js-indent-level 2)
@@ -25,6 +24,16 @@
                ("C-c i" . eglot-find-implementation)
                ("C-c d" . eglot-find-declaration)
                ("C-c t" . eglot-find-typeDeclaration))))
+
+(use-package which-func
+  :config
+  (setq which-func-unknown "")
+  ;; Drop the brackets
+  (when (equal (car which-func-format) "[")
+    (setq which-func-format (cadr which-func-format)))
+  :custom-face (which-func ((t (:inherit nil))))
+  ;; Package is called `which-func', but mode is `which-function-mode'
+  :hook ((c++-ts-mode java-ts-mode js-ts-mode) . which-function-mode))
 
 (use-package paredit
   :hook ((lisp-mode emacs-lisp-mode lisp-data-mode) . enable-paredit-mode))
@@ -43,23 +52,12 @@
   :hook ((go-ts-mode . (lambda ()
                          (setq-local indent-tabs-mode nil)))))
 
-(use-package perl-ts-mode
-  :mode "\\.pl\\'")
-
-(use-package protobuf-ts-mode
-  :mode "\\.proto\\'")
-
-(use-package awk-ts-mode
-  :mode "\\.[mg]?awk\\'")
-
-(use-package scala-ts-mode
-  :mode "\\.sc\\(ala\\)?\\'" "\\.sbt\\'")
-
-(use-package swift-ts-mode
-  :mode "\\.swift\\'")
-
-(use-package terraform-mode
-  :mode "\\.t\\(f\\(vars\\)?\\|ofu\\)\\'")
+(use-package awk-ts-mode      :mode "\\.[mg]?awk\\'")
+(use-package perl-ts-mode     :mode "\\.pl\\'")
+(use-package protobuf-ts-mode :mode "\\.proto\\'")
+(use-package scala-ts-mode    :mode "\\.sc\\(ala\\)?\\'" "\\.sbt\\'")
+(use-package swift-ts-mode    :mode "\\.swift\\'")
+(use-package terraform-mode   :mode "\\.t\\(f\\(vars\\)?\\|ofu\\)\\'")
 
 ;;;;; Flymake ;;;;;
 

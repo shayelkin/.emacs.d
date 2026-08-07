@@ -14,6 +14,9 @@
 (when (version< emacs-version "30")
   (error "It is time to upgrade this Emacs!"))
 
+;; Take effect early, before anything that would try to connect to remotes
+(setq gnutls-verify-error t)
+
 (eval-when-compile
   (require 'use-package)
   (require 'use-package-ensure))
@@ -28,8 +31,8 @@
 (defconst on-mac-window-system (memq window-system '(mac ns))
   "Non-nil when running on macOS graphical environment.")
 
-;; Similar to `exec-path-from-shell', but just the essence, so faster. Works on bash and zsh, which
-;; is all I care about.
+;; Like `exec-path-from-shell' but faster, as it just gets PATH from bash or zsh,
+;; which is all I care for.
 (when on-mac-window-system
   (let ((path-string (string-trim
                       (with-temp-buffer
@@ -52,27 +55,28 @@
 (require 'my-prog-custom)
 
 (setq delete-by-moving-to-trash t
-      blink-cursor-blinks 2
-      inhibit-startup-message t
-      mac-option-modifier 'meta
+      blink-cursor-blinks       2
+      inhibit-startup-message   t
+      mac-option-modifier       'meta
       read-file-name-completion-ignore-case t
-      ring-bell-function 'ignore
-      show-trailing-whitespace t
-      create-lockfiles nil
+      ring-bell-function        'ignore
+      show-trailing-whitespace  t
+      create-lockfiles          nil
       ;; See https://debbugs.gnu.org/cgi/bugreport.cgi?msg=5;bug=55737
-      read-process-output-max 65535
-      use-dialog-box nil
-      use-short-answers t
+      read-process-output-max   65535
+      use-dialog-box            nil
+      use-short-answers         t
       ;; TAB indents, or if already indented, complete-at-point.
-      tab-always-indent 'complete
+      tab-always-indent         'complete
       ;; Small speed up by not bothering with VCs other than git
-      vc-handled-backends '(Git))
+      vc-handled-backends       '(Git))
 
 (setq-default cursor-type 'hbar
               indent-tabs-mode nil
               fill-column 99)
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (column-number-mode t)
+(display-line-numbers-mode t)
 
 (add-hook 'text-mode-hook #'turn-on-auto-fill)
 (add-hook 'text-mode-hook #'visual-line-mode)
@@ -98,8 +102,7 @@
            ("C-z" . undo)
            ;; M-> is S-M-. which is set to effectively undo M-.
            ("M->" . pop-tag-mark)
-           ("C-h m" . manual-entry)
- )
+           ("C-h m" . manual-entry))
 
 (bind-key* "C-." #'completion-at-point)
 
@@ -122,14 +125,9 @@
 
 ;;;;;
 
-(use-package server
-  :config (server-start))
-
-(use-package windmove
-  :config (windmove-default-keybindings))
-
-(use-package paren
-  :config (show-paren-mode))
+(use-package server   :config (server-start))
+(use-package windmove :config (windmove-default-keybindings))
+(use-package paren    :config (show-paren-mode))
 
 (use-package sr-speedbar
   ;; Don't :after speedbar, as then use-package won't bind-key. Instead, :defer
@@ -147,7 +145,6 @@
   :mode "\\.md\\'"
   :custom
   (markdown-header-scaling t)
-  (markdown-header-scaling-values '(1.6 1.3 1.1 1.0 1.0 1.0))
   ;; Make the default font for markdown buffers variable-pitch
   ;; :hook (markdown-mode . (lambda ()
   ;;                          (setq buffer-face-mode-face '(:inherit variable-pitch :height 1.2))
@@ -169,8 +166,7 @@
   ;; Show corfu-info-documentation in a popup
   (corfu-popupinfo-mode))
 
-(use-package vertico
-  :config (vertico-mode))
+(use-package vertico :config (vertico-mode))
 
 (use-package marginalia
   :after vertico
@@ -193,7 +189,6 @@
   (smtpmail-stream-type 'ssl)
   (smtpmail-servers-requiring-authorization "\\.gmail\\.com"))
 
-
  ;; Buttonize URLs and e-mail addresses.
 (use-package goto-addr
   :config (global-goto-address-mode))
@@ -205,18 +200,9 @@
 (use-package which-key
   :config (which-key-mode))
 
-(use-package which-func
-  :config
-  (setq which-func-unknown "")
-  ;; Drop the brackets
-  (when (equal (car which-func-format) "[")
-    (setq which-func-format (cadr which-func-format)))
-  :custom-face (which-func ((t (:inherit nil))))
-  ;; Package is called `which-func', but mode is `which-function-mode'
-  :hook ((c++-ts-mode java-ts-mode js-ts-mode) . which-function-mode))
-
 (use-package magit
-  :bind ("C-x g" . magit-status)
+  :bind (("C-x g" . magit-status)
+         ("C-c g" . magit-file-dispatch))
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (magit-section-initial-visibility-alist '((stashes . show)
@@ -225,8 +211,9 @@
   (magit-status-margin '(t age magit-log-margin-width nil 18))
   :hook (git-commit-setup . (lambda () (setq-local fill-column 72)))
   :config (magit-add-section-hook 'magit-status-sections-hook
+                                  'magit-insert-worktrees
                                   'magit-insert-stashes
-                                  'magit-insert-worktrees t))
+                                  t))
 
 (use-package diff-hl
   :after magit
@@ -289,7 +276,6 @@
 ;; Custom file
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load-file custom-file)
-
 
 (provide 'init)
 ;;; init.el ends here
