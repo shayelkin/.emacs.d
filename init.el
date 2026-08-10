@@ -80,7 +80,8 @@
 
 (add-hook 'text-mode-hook #'turn-on-auto-fill)
 (add-hook 'text-mode-hook #'visual-line-mode)
-(setopt text-mode-ispell-word-completion nil)
+(setopt Buffer-menu-group-by '(Buffer-menu-group-by-mode)
+        text-mode-ispell-word-completion nil)
 
 ;; Sort the buffer list by major mode
 (add-hook 'buffer-menu-mode-hook (lambda () (Buffer-menu-sort 5)))
@@ -88,6 +89,8 @@
 (setq frame-title-format '(buffer-file-name
                            (:eval (abbreviate-file-name (buffer-file-name)))
                            "%b"))
+
+
 
 ;;;;; Key bindings
 
