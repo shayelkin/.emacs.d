@@ -135,7 +135,9 @@
 (use-package sr-speedbar
   ;; Don't :after speedbar, as then use-package won't bind-key. Instead, :defer
   ;; the speedbar package below.
-  :custom (sr-speedbar-use-frame-root-window t)
+  :custom
+  (sr-speedbar-use-frame-root-window t)
+  (sr-speedbar-right-side nil)
   :commands sr-speed-bar-toggle
   :bind ("<f10>" . sr-speedbar-toggle))
 
