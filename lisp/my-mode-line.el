@@ -2,7 +2,10 @@
 
 ;; Author: Shay Elkin <shay@elkin.io>
 ;; Package-Requires: ((emacs "30.1")
-;;                    (nyan-mode "1.1.3"))
+;;                    (nyan-mode "1.1.3")
+;;                    (crc "1.0.0")
+;;                    (magit "4.0.0"))
+;;
 ;; SPDX-License-Identifier: MIT
 
 ;; This file is not part of GNU Emacs.
@@ -17,8 +20,13 @@
 (eval-when-compile
   (require 'use-package))
 
+(require 'color)
+
 (use-package nyan-mode
   :custom (nyan-minimum-window-width 0))
+
+(use-package magit)
+(use-package crc)
 
 (setq mode-line-right-align-edge 'right-fringe
       ;; `my--mode-line-middle' puts a `%p' if needed.
@@ -50,7 +58,6 @@
              ((length= exception 0) my--flymake-empty-counters-propertized-str))))))
 
 ;; The default value for mode-line-buffer-identification is ("%12b"), I want just " %b ".
-
 (defvar my--propertized-buffer-identification
   (car (propertized-buffer-identification " %b ")))
 
@@ -127,10 +134,44 @@ mouse-3: Toggle minor modes"
                 ,@my--mode-line-format-right))
 
 (custom-set-faces
- ;; White on bright blue
- '(mode-line ((t (:inherit variable-pitch :height 1.2 :background "#0059d1" :foreground "#fff"))))
+ '(mode-line ((t (:inherit variable-pitch :height 1.2 :foreground "#fff"))))
  '(mode-line-inactive ((t (:inherit variable-pitch :height 1.2)))))
 
+(defcustom mode-line-repo-background-colors-count 12
+  "How many colors to use to differentiate a buffer source by mode-line's background.
+
+The hues picked are evenly spaced on the color wheel, and selecting which one to use for each
+buffer is determined by the local git repository it belongs to."
+  :type '(natnum)
+  :group 'mode-line-faces)
+
+(defvar-local git-repo-id nil
+  "A unique ID per local git repository.")
+
+(defvar-local mode-line-background-remap-cookie nil
+  "face-remap cookie for this buffer's mode-line, so re-applying doesn't stack.")
+
+(defun set-buffer-mode-line-background-hue (hue)
+  "Set this buffer's mode-line background to the given HUE, a number between 0.0 and 1.0, inclusive."
+  (interactive)
+  (when mode-line-background-remap-cookie
+    (face-remap-remove-relative mode-line-background-remap-cookie)
+    (setq mode-line-background-remap-cookie nil))
+  (when hue
+    (setq mode-line-background-remap-cookie
+          (face-remap-add-relative 'mode-line :background (apply 'color-rgb-to-hex (color-hsl-to-rgb hue 0.45 0.45))))))
+
+(defun my--apply-mode-line-repo-background-hue ()
+  "Set a unique color for the mode-line, based on the git repository it belongs to."
+  (let* ((repo-id (or git-repo-id
+                       (when-let* ((common-dir (magit-git-string "rev-parse" "--path-format=absolute" "--git-common-dir"))
+                                   (cur-repo-id (file-name-nondirectory (string-remove-suffix "/.git" common-dir))))
+                         (setq git-repo-id cur-repo-id))))
+         (hue-index (if (not repo-id) 0 (1+ (% (crc-32 repo-id) (1- mode-line-repo-background-colors-count)))))
+         (hue (* hue-index (/ mode-line-repo-background-colors-count 360.0))))
+    (set-buffer-mode-line-background-hue hue)))
+
+(add-hook 'after-change-major-mode-hook #'my--apply-mode-line-repo-background-hue)
 
 (provide 'my-mode-line)
 ;;; my-mode-line.el ends here
