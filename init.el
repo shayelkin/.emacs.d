@@ -42,9 +42,18 @@
     (setenv "PATH" path-string)))
 
 (setq use-package-compute-statistics t
-      use-package-always-ensure t)
+      use-package-always-ensure t
+      ;; `use-package-ensure-elpa' loads package.el unconditionally, which pulls in
+      ;; url-handlers and costs ~100ms. Only reach for it when something is missing.
+      use-package-ensure-function
+      (lambda (name args state &optional no-refresh)
+        (unless (seq-every-p (lambda (arg)
+                               (and (not (consp arg)) ; `:pin' needs the real thing
+                                    (package-installed-p
+                                     (if (eq arg t) (use-package-as-symbol name) arg))))
+                             args)
+          (use-package-ensure-elpa name args state no-refresh))))
 
-(require 'package)
 (setq package-archives '(("gnu" .  "https://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 
@@ -53,6 +62,10 @@
 (require 'my-commands)
 (require 'my-mode-line)
 (require 'my-prog-custom)
+
+;; This is also a time saver, as having the scratch buffer be `lisp-interaction-mode'
+;; costs ~150ms at startup.
+(setq initial-major-mode 'fundamental-mode)
 
 (setq delete-by-moving-to-trash t
       blink-cursor-blinks       2
@@ -76,7 +89,7 @@
               fill-column 99)
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (column-number-mode t)
-(display-line-numbers-mode t)
+(global-display-line-numbers-mode t)
 
 (add-hook 'text-mode-hook #'turn-on-auto-fill)
 (add-hook 'text-mode-hook #'visual-line-mode)
