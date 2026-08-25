@@ -3,8 +3,7 @@
 ;; Author: Shay Elkin <shay@elkin.io>
 ;; Package-Requires: ((emacs "30.1")
 ;;                    (nyan-mode "1.1.3")
-;;                    (crc "1.0.0")
-;;                    (magit "4.0.0"))
+;;                    (crc "1.0.0"))
 ;;
 ;; SPDX-License-Identifier: MIT
 
@@ -25,7 +24,6 @@
 (use-package nyan-mode
   :custom (nyan-minimum-window-width 0))
 
-(use-package magit)
 (use-package crc)
 
 (setq mode-line-right-align-edge 'right-fringe
@@ -145,8 +143,12 @@ buffer is determined by the local git repository it belongs to."
   :type '(natnum)
   :group 'mode-line-faces)
 
-(defvar-local git-repo-id nil
-  "A unique ID per local git repository.")
+(defvar-local git-repo-id 'unset
+  "A unique ID per local git repository, nil when the buffer isn't in one.
+Holds `unset' until looked up for the buffer.")
+
+(defvar my--git-repo-id-cache (make-hash-table :test 'equal)
+  "Maps a `default-directory' to its repository ID, or to nil when it has none.")
 
 (defvar-local mode-line-background-remap-cookie nil
   "face-remap cookie for this buffer's mode-line, so re-applying doesn't stack.")
@@ -161,14 +163,27 @@ buffer is determined by the local git repository it belongs to."
     (setq mode-line-background-remap-cookie
           (face-remap-add-relative 'mode-line :background (apply 'color-rgb-to-hex (color-hsl-to-rgb hue 0.45 0.45))))))
 
+(defun my--git-common-dir ()
+  "Return the absolute path of this buffer's git common dir, or nil if there is none."
+  (with-temp-buffer
+    (when (eq 0 (process-file "git" nil '(t nil) nil
+                              "rev-parse" "--path-format=absolute" "--git-common-dir"))
+      (goto-char (point-min))
+      (buffer-substring-no-properties (point) (line-end-position)))))
+
 (defun my--apply-mode-line-repo-background-hue ()
   "Set a unique color for the mode-line, based on the git repository it belongs to."
-  (let* ((repo-id (or git-repo-id
-                       (when-let* ((common-dir (magit-git-string "rev-parse" "--path-format=absolute" "--git-common-dir"))
-                                   (cur-repo-id (file-name-nondirectory (string-remove-suffix "/.git" common-dir))))
-                         (setq git-repo-id cur-repo-id))))
-         (hue-index (if (not repo-id) 0 (1+ (% (crc-32 repo-id) (1- mode-line-repo-background-colors-count)))))
-         (hue (* hue-index (/ mode-line-repo-background-colors-count 360.0))))
+  (when (eq git-repo-id 'unset)
+    (setq git-repo-id
+          (let ((cached (gethash default-directory my--git-repo-id-cache 'unset)))
+            (if (not (eq cached 'unset)) cached
+              (puthash default-directory
+                       (when-let* ((common-dir (my--git-common-dir)))
+                         (file-name-nondirectory (string-remove-suffix "/.git" common-dir)))
+                       my--git-repo-id-cache)))))
+  (let* ((hue-index (if (not git-repo-id) 0
+                      (1+ (% (crc-32 git-repo-id) (1- mode-line-repo-background-colors-count)))))
+         (hue (/ hue-index (float mode-line-repo-background-colors-count))))
     (set-buffer-mode-line-background-hue hue)))
 
 (add-hook 'after-change-major-mode-hook #'my--apply-mode-line-repo-background-hue)
