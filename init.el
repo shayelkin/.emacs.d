@@ -89,20 +89,15 @@
               fill-column 99)
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
 (column-number-mode t)
-(global-display-line-numbers-mode t)
 
 (add-hook 'text-mode-hook #'turn-on-auto-fill)
 (add-hook 'text-mode-hook #'visual-line-mode)
 (setopt Buffer-menu-group-by '(Buffer-menu-group-by-mode)
         text-mode-ispell-word-completion nil)
 
-;; Sort the buffer list by major mode
-(add-hook 'buffer-menu-mode-hook (lambda () (Buffer-menu-sort 5)))
-
 (setq frame-title-format '(buffer-file-name
                            (:eval (abbreviate-file-name (buffer-file-name)))
                            "%b"))
-
 
 
 ;;;;; Key bindings
@@ -141,9 +136,12 @@
 
 ;;;;;
 
-(use-package server   :config (server-start))
-(use-package windmove :config (windmove-default-keybindings))
-(use-package paren    :config (show-paren-mode))
+(use-package display-line-numbers :config (global-display-line-numbers-mode 1))
+(use-package paren        :config (show-paren-mode))
+(use-package server       :config (server-start))
+(use-package windmove     :config (windmove-default-keybindings))
+;; pixel-scroll needs :ensure nil as it is completely missing from ELPA (built-in only)
+(use-package pixel-scroll :ensure nil :config (pixel-scroll-mode 1))
 
 (use-package sr-speedbar
   ;; Don't :after speedbar, as then use-package won't bind-key. Instead, :defer
@@ -212,6 +210,7 @@
   :config (global-goto-address-mode))
 
 (use-package flyspell
+  :bind ((:map flyspell-mode-map) ("<mouse-3>" . flyspell-correct-word-before-point))
   :hook ((text-mode . flyspell-mode)
          (prog-mode . flyspell-prog-mode)))
 
