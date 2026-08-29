@@ -35,7 +35,11 @@
           (set-visited-file-name new-name)
           (set-buffer-modified-p nil))))))
 
-;;;;; Generate a GitHub link for the current position ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Generates a GitHub link for the current position
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun my--github-remote-urls ()
   "Return the URLs for the current buffer's git remotes that are hosted on GitHub."
@@ -71,7 +75,11 @@
 
 (bind-key "<f8>" #'github-url-at-point)
 
-;;;;; Add/remove window from a frame, while keeping existing windows the same size ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Add/remove window while keeping other windows in the frame the same size.
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun shrink-frame-horizontally (&optional window)
   "Delete the window to the right of WINDOW.
@@ -119,7 +127,11 @@ When on a window system, also shrink the frame by the size of the deleted window
 (bind-keys* ("C-{" . shrink-frame-horizontally)
             ("C-}" . expand-frame-horizontally))
 
-;;;;; Query Claude and show the result in a buffer ;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Query Claude
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defcustom ask-claude-model "sonnet"
   "Model name passed to \"claude --model\".
@@ -168,7 +180,6 @@ When the region is active its contents are used as the default PROMPT."
     (display-buffer buffer)))
 
 (bind-key "<f11>" #'ask-claude)
-
 
 (provide 'my-commands)
 ;;; my-commands.el ends here

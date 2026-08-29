@@ -11,19 +11,17 @@
 
 ;;; Commentary:
 
-;; My most extenstive customization to Emacs: a more sparse mode-line, inspired by `mood-line',
-;; with a `nyan-mode' scroll bar between the left and right parts.
+;; My most extenstive customization to Emacs: a more sparse mode-line, inspired by
+;; `mood-line', with a `nyan-mode' scroll bar between the left and right parts.
 
 ;;; Code:
 
 (eval-when-compile
   (require 'use-package))
 
-(require 'color)
-
-(use-package nyan-mode
-  :custom (nyan-minimum-window-width 0))
-
+(use-package color :autoload color-hsl-to-rgb)
+(use-package face-remap :autoload face-remap-remove-relative)
+(use-package nyan-mode :custom (nyan-minimum-window-width 0))
 (use-package crc)
 
 (setq mode-line-right-align-edge 'right-fringe
