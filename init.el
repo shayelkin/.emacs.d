@@ -10,9 +10,13 @@
 
 ;;; Code:
 
-;; Don't bother with backwards compatibility.
-(when (version< emacs-version "30")
-  (error "It is time to upgrade this Emacs!"))
+;; Don't bother with backwards compatibility before 2025.
+(when (version< emacs-version "30.1")
+  (error "It is time to upgrade this Emacs installation!"))
+
+(when (version< emacs-version "31.1")
+  ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/User-Lisp-Directory.html
+  (add-to-list 'load-path (expand-file-name "user-lisp" user-emacs-directory)))
 
 ;; Take effect early, before anything that would try to connect to remotes
 (setq gnutls-verify-error t)
@@ -56,8 +60,6 @@
 
 (setq package-archives '(("gnu" .  "https://elpa.gnu.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
-
-(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 (require 'my-commands)
 (require 'my-mode-line)
@@ -156,16 +158,19 @@
   :defer t   ;; See comment on the use-package stanza for `sr-speedbar'.
   :custom (speedbar-show-unknown-files t))
 
-;; `markdown-ts-mode' exists, but markdown-mode has better ergonomics today.
-(use-package markdown-mode
+(use-package markdown-ts-mode
   :mode "\\.md\\'"
-  :custom
-  (markdown-header-scaling t)
-  ;; Make the default font for markdown buffers variable-pitch
-  ;; :hook (markdown-mode . (lambda ()
-  ;;                          (setq buffer-face-mode-face '(:inherit variable-pitch :height 1.2))
-  ;;                          (buffer-face-mode)))
-  )
+  :custom-face
+  (markdown-ts-heading-1
+   ((t (:inherit font-lock-function-name-face :weight bold :height 1.5))))
+  (markdown-ts-heading-2
+   ((t (:inherit font-lock-function-name-face :weight bold :height 1.4))))
+  (markdown-ts-heading-3
+   ((t (:inherit font-lock-function-name-face :weight bold :height 1.3))))
+  (markdown-ts-heading-4
+   ((t (:inherit font-lock-function-name-face :weight bold :height 1.2))))
+  (markdown-ts-heading-5
+   ((t (:inherit font-lock-function-name-face :weight bold :height 1.1)))))
 
 (use-package auto-dim-other-buffers
   ;; There's massive speedup from starting this in `after-init-hook', but doing it there

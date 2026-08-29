@@ -29,10 +29,5 @@
    (tool-bar-lines . 0)
    (vertical-scroll-bars . nil)))
 
-;; I used to only maximize the initial frame when the monitor's `mm-size' was less than
-;; 450. But that requires waiting for the frame to be created first, slowing startup by
-;; ~0.15s.
-(setq initial-frame-alist '((fullscreen . maximized)))
-
 (provide 'early-init)
 ;;; early-init.el ends here

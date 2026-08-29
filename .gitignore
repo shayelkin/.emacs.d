@@ -2,14 +2,10 @@
 *.~undo-tree
 *~
 .DS_Store
-.cask/
-.eask/
-.eldev/
-.keg/
 /eln-cache/
 /elpa/
 /org-persist/
-/tramp/
+/tramp
 /transient/
 /tree-sitter/
-dist/
+/user-lisp/.user-lisp-autoloads.el
