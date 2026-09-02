@@ -11,15 +11,13 @@
 
 ;;; Code:
 
-(require 'bind-key)
-
+;;;###autoload
 (defun indent-whole-buffer ()
   "Indent the whole buffer."
   (interactive)
   (indent-region (point-min) (point-max) nil))
 
-(bind-key* "C-c C-i" #'indent-whole-buffer)
-
+;;;###autoload
 (defun rename-file-and-buffer (new-name)
   "Renames both the current buffer and the file it's visiting to NEW-NAME."
   (interactive "sNew name: ")
@@ -51,6 +49,7 @@
     (lambda (r) (magit-get "remote" r "url"))
     (magit-list-remotes))))
 
+;;;###autoload
 (defun github-url-at-point ()
   "Generate a GitHub link for current file position and copy it into the clipboard."
   (interactive)
@@ -73,60 +72,6 @@
     (when (called-interactively-p 'interactive)
       (message "Can't find a GitHub hosted remote for the current buffer"))))
 
-(bind-key "<f8>" #'github-url-at-point)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Add/remove window while keeping other windows in the frame the same size.
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun shrink-frame-horizontally (&optional window)
-  "Delete the window to the right of WINDOW.
-
-If WINDOW is the right-most window in the row, delete the one to its left.
-When on a window system, also shrink the frame by the size of the deleted window"
-  (interactive)
-  (if-let* ((window (or window (selected-window)))
-            (window-to-delete (or (window-in-direction 'right window)
-                                  (window-in-direction 'left window)))
-            (frame (window-frame window-to-delete))
-            (shrink-by (window-total-width window-to-delete)))
-      (progn
-        (delete-window window-to-delete)
-        (when window-system
-          (set-frame-width frame (- (frame-width frame) shrink-by))))
-    (message "There is no other window in the row to delete.")))
-
-(defun my--move-frame-left-if-needed (&optional frame)
-  "Move FRAME to be inside the display if possible."
-  (interactive)
-  (let* ((frame (or frame (selected-frame)))
-         (frame-width (frame-pixel-width frame))
-         (display-width (display-pixel-width)))
-    (when (> (+ (frame-parameter frame 'left) frame-width) display-width)
-      (set-frame-position frame
-                          (max 0 (- display-width frame-width))
-                          (frame-parameter frame 'top)))))
-
-(defun expand-frame-horizontally (&optional window)
-  "Create a window to the right of WINDOW and on window system expand the frame."
-  (interactive)
-  (let* ((window (or window (selected-window)))
-         (frame (window-frame window))
-         (expand-by (window-total-width window))
-         (original-frame-width (frame-width frame)))
-    (when window-system
-      ;; set-frame-width first, to have window and the new window be the same size
-      (set-frame-width frame (+ original-frame-width expand-by))
-      (my--move-frame-left-if-needed))
-    (unless (split-window-right nil window)
-      (set-frame-width frame original-frame-width)
-      (message "Failed to create new window"))))
-
-(bind-keys* ("C-{" . shrink-frame-horizontally)
-            ("C-}" . expand-frame-horizontally))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Query Claude
@@ -139,6 +84,7 @@ When nil, the default is used."
   :type '(choice (const :tag "Default" nil) string)
   :group 'ask-claude)
 
+;;;###autoload
 (defun ask-claude (prompt)
   "Run \"claude --print\" with PROMPT and show the result in a new buffer.
 
@@ -178,8 +124,6 @@ When the region is active its contents are used as the default PROMPT."
       ;; claude reads stdin; close it so it doesn't wait for input.
       (process-send-eof proc))
     (display-buffer buffer)))
-
-(bind-key "<f11>" #'ask-claude)
 
 (provide 'my-commands)
 ;;; my-commands.el ends here

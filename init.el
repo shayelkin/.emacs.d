@@ -36,7 +36,6 @@
 (eval-when-compile
   (require 'use-package)
   (require 'use-package-ensure))
-(require 'bind-key)
 
 (eval-when-compile
   (require 'use-package-ensure))
@@ -77,9 +76,6 @@
                         (buffer-string)))))
     (setq exec-path (parse-colon-path path-string))
     (setenv "PATH" path-string)))
-
-(require 'my-commands)
-(require 'my-mode-line)
 
 ;; Important optimization: having the scratch buffer be `lisp-interaction-mode'
 ;; costs ~150ms at startup.
@@ -126,6 +122,25 @@
 ;; Split the inital frame
 (when (< split-width-threshold (frame-parameter nil 'width))
   (split-window-horizontally))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  user-lisp packages
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(use-package my-commands
+  :ensure nil ;; a user-lisp package
+  :bind (("C-c C-i" . indent-whole-buffer)
+         ("<f8>" . github-url-at-point)
+         ("<f11>" . ask-claude)))
+
+(use-package shrink-expand-frame
+  :ensure nil  ;; a user-lisp package
+  :bind* (("C-{" . shrink-frame-horizontally)
+          ("C-}" . expand-frame-horizontally)))
+
+(require 'my-mode-line)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
