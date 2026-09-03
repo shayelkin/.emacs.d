@@ -132,11 +132,14 @@
 (use-package my-commands
   :ensure nil ;; a user-lisp package
   :bind (("C-c C-i" . indent-whole-buffer)
-         ("<f8>"    . github-url-at-point)
-         ("<f11>"   . ask-claude)))
+         ("<f8>"    . github-url-at-point)))
+
+(use-package ask-claude
+  :ensure nil ;; a user-lisp package
+  :bind ("<f11>" . ask-claude))
 
 (use-package shrink-expand-frame
-  :ensure nil  ;; a user-lisp package
+  :ensure nil ;; a user-lisp package
   :bind* (("C-{" . shrink-frame-horizontally)
           ("C-}" . expand-frame-horizontally)))
 
