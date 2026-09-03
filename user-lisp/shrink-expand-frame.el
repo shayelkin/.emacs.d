@@ -1,4 +1,4 @@
-;; shrink-expand-frame.el -- Add/remove window while keeping others the same size. -*- lexical-binding: t -*-
+;; shrink-expand-frame.el -- Add/remove a window while keeping others the same size. -*- lexical-binding: t -*-
 
 ;; Author: Shay Elkin <shay@elkin.io>
 ;; Package-Requires: ((emacs "30.1"))

@@ -32,7 +32,7 @@ When the region is active its contents are used as the default PROMPT."
       (view-mode 1)
       (let ((inhibit-read-only t))
         (goto-char (point-max))
-        (insert (format "\n\n> %s\n\n" prompt)))
+        (insert (format "> %s\n\n" prompt)))
       (setq mode-line-process '(:propertize "running" face compilation-mode-line-run)))
     (let ((proc
            (make-process
@@ -53,7 +53,6 @@ When the region is active its contents are used as the default PROMPT."
       ;; claude reads stdin; close it so it doesn't wait for input.
       (process-send-eof proc))
     (display-buffer buffer)))
-
 
 (provide 'ask-claude)
 ;;; ask-claude.el ends here

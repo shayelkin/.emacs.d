@@ -16,13 +16,10 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'use-package))
-
-(use-package color :autoload color-hsl-to-rgb)
-(use-package face-remap :autoload face-remap-remove-relative)
-(use-package nyan-mode :custom (nyan-minimum-window-width 0))
-(use-package crc)
+(require 'color)
+(require 'face-remap)
+(require 'nyan-mode)
+(require 'crc)
 
 (setq mode-line-right-align-edge 'right-fringe
       ;; `my--mode-line-middle' puts a `%p' if needed.
@@ -124,15 +121,6 @@ mouse-3: Toggle minor modes"
     (:eval (my--flymake-mode-line))
     mode-line-process))
 
-(setq-default mode-line-format
-              `(,@my--mode-line-format-left
-                (:eval (my--mode-line-middle))
-                ,@my--mode-line-format-right))
-
-(custom-set-faces
- '(mode-line ((t (:inherit variable-pitch :height 1.2 :foreground "#fff"))))
- '(mode-line-inactive ((t (:inherit variable-pitch :height 1.2)))))
-
 (defcustom mode-line-repo-background-colors-count 12
   "How many colors to use to differentiate a buffer source by mode-line's background.
 
@@ -166,8 +154,7 @@ Holds `unset' until looked up for the buffer.")
   (with-temp-buffer
     (when (eq 0 (process-file "git" nil '(t nil) nil
                               "rev-parse" "--path-format=absolute" "--git-common-dir"))
-      (goto-char (point-min))
-      (buffer-substring-no-properties (point) (line-end-position)))))
+      (car (split-string (buffer-string) "\n" t)))))
 
 (defun my--apply-mode-line-repo-background-hue ()
   "Set a unique color for the mode-line, based on the git repository it belongs to."
@@ -185,6 +172,15 @@ Holds `unset' until looked up for the buffer.")
     (set-buffer-mode-line-background-hue hue)))
 
 (add-hook 'after-change-major-mode-hook #'my--apply-mode-line-repo-background-hue)
+
+(setq-default mode-line-format
+              `(,@my--mode-line-format-left
+                (:eval (my--mode-line-middle))
+                ,@my--mode-line-format-right))
+
+(custom-set-faces
+ '(mode-line ((t (:inherit variable-pitch :height 1.2 :foreground "#fff"))))
+ '(mode-line-inactive ((t (:inherit variable-pitch :height 1.2)))))
 
 (provide 'my-mode-line)
 ;;; my-mode-line.el ends here
