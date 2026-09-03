@@ -123,16 +123,30 @@
 (when (< split-width-threshold (frame-parameter nil 'width))
   (split-window-horizontally))
 
+(defun rename-file-and-buffer (new-name)
+  "Renames both the current buffer and the file it's visiting to NEW-NAME."
+  (interactive "sNew name: ")
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not filename)
+        (message "Buffer '%s' is not visiting a file!" name)
+      (if (get-buffer new-name)
+          (message "A buffer named '%s' already exists!" new-name)
+        (progn
+          (rename-file name new-name 1)
+          (rename-buffer new-name)
+          (set-visited-file-name new-name)
+          (set-buffer-modified-p nil))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  user-lisp packages
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(use-package my-commands
-  :ensure nil ;; a user-lisp package
-  :bind (("C-c C-i" . indent-whole-buffer)
-         ("<f8>"    . github-url-at-point)))
+(use-package github-at-point
+  :ensure nil
+  :bind ("<f8>" . github-at-point))
 
 (use-package ask-claude
   :ensure nil ;; a user-lisp package
@@ -151,9 +165,15 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(bind-key "C-c C-i" (lambda ()
+                      "Indent the whole buffer."
+                      (interactive)
+                      (indent-region (point-min) (point-max) nil)))
+
 (bind-key "M-j" (lambda ()
                   "Joins the next line to this, regardless of where the point is in the line."
-                  (interactive) (join-line -1)))
+                  (interactive)
+                  (join-line -1)))
 
 (bind-keys
  ("<f2>"      . revert-buffer-quick)
@@ -264,7 +284,7 @@
   (smtpmail-stream-type 'ssl)
   (smtpmail-servers-requiring-authorization "\\.gmail\\.com"))
 
- ;; Buttonize URLs and e-mail addresses.
+;; Buttonize URLs and e-mail addresses.
 (use-package goto-addr
   :config (global-goto-address-mode))
 

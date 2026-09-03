@@ -10,7 +10,6 @@
 
 ;;; Code:
 
-
 (defcustom ask-claude-model "sonnet"
   "Model name passed to \"claude --model\".
 When nil, the default is used."
