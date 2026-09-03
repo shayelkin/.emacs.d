@@ -215,8 +215,6 @@
 (use-package paren        :config (show-paren-mode))
 (use-package server       :config (server-start))
 (use-package windmove     :config (windmove-default-keybindings))
-;; pixel-scroll needs :ensure nil as it is completely missing from ELPA (built-in only)
-(use-package pixel-scroll :ensure nil :config (pixel-scroll-mode 1))
 (use-package which-key    :config (which-key-mode))
 
 (use-package sr-speedbar
