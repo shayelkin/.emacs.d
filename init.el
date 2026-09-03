@@ -473,26 +473,28 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun my--hide-menu-bar-on-text-frames (&optional frame)
-  "Toggle the menu bar based on FRAME being text-only or graphical."
-  (let ((frame (or frame (selected-frame))))
-    (set-frame-parameter frame 'menu-bar-lines
-                         (if (display-graphic-p frame) 1 0))))
-
-(add-hook 'after-make-frame-functions #'my--hide-menu-bar-on-text-frames)
-;; Also apply to the already created initial frame.
-(dolist (frame (frame-list))
-  (my--hide-menu-bar-on-text-frames frame))
-
 (use-package xt-mouse
-  :if (version< emacs-version "31.1")
+  :if (version< emacs-version "31") ;; auto-enabled in Emacs 31
   :commands xterm-mouse-mode
   :init
   ;; can't use `:hook', as after-make-frame-functions doesn't have a -hook suffix.
   (add-hook 'after-make-frame-functions (lambda (&optional frame)
-                                          (unless (or xterm-mouse-mode
-                                                      (display-graphic-p frame))
+                                          (unless (display-graphic-p frame)
                                             (xterm-mouse-mode)))))
+
+(defun hide-menu-bar-on-text-frames (&optional frame)
+  "Toggle the menu bar for FRAME only on macOS graphic display."
+  (let ((frame (or frame (selected-frame))))
+    (set-frame-parameter frame 'menu-bar-lines
+                         (if (and on-mac-window-system
+                                  (display-graphic-p frame)) 1 0))))
+
+(add-hook 'after-make-frame-functions #'hide-menu-bar-on-text-frames)
+
+;; Also apply to the already created initial frame.
+(dolist (frame (frame-list))
+  (hide-menu-bar-on-text-frames frame)
+  (unless (display-graphic-p) (xterm-mouse-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -502,7 +504,6 @@
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load-file custom-file)
-
 
 (provide 'init)
 ;;; init.el ends here
