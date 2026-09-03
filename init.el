@@ -132,8 +132,8 @@
 (use-package my-commands
   :ensure nil ;; a user-lisp package
   :bind (("C-c C-i" . indent-whole-buffer)
-         ("<f8>" . github-url-at-point)
-         ("<f11>" . ask-claude)))
+         ("<f8>"    . github-url-at-point)
+         ("<f11>"   . ask-claude)))
 
 (use-package shrink-expand-frame
   :ensure nil  ;; a user-lisp package
@@ -292,7 +292,14 @@
          (magit-post-refresh . diff-hl-magit-post-refresh)))
 
 (use-package vterm
-  :bind ("<f12>" . vterm-other-window))
+  :bind ("<f12>" . vterm-other-window)
+  :config
+  ;; `vterm--get-color' directly reads the `default' face, causing `face-remap-add-relative' to have
+  ;; nil effect. So have to override `vterm--get-color' itself.
+  (define-advice vterm--get-color (:around (fn index &rest args))
+    (if (and (= index -1) (not (memq :underline args)) (not (memq :inverse-video args)))
+        (if (memq :foreground args) "white" "black")
+      (apply fn index args))))
 
 (use-package deadgrep
   :ensure-system-package (rg . ripgrep)

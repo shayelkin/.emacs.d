@@ -41,7 +41,7 @@ When on a window system, also shrink the frame by the size of the deleted window
 
 (defun shrink-expand-frame--is-fullwidth (&optional frame)
   "Returns non-nil if FRAME is fullwidth, fullboth, or maximized"
-  (member (frame-parameter (or frame (selected-frame)) 'fullscreen)
+  (memq (frame-parameter (or frame (selected-frame)) 'fullscreen)
           '(fullboth fullwidth maximized)))
 
 ;;;###autoload
