@@ -15,8 +15,11 @@
 
 ;;; Code:
 
+;; Workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=120645
+(setenv "MACOSX_DEPLOYMENT_TARGET" "15.0")
+
 (setq gc-cons-threshold most-positive-fixnum
-      gc-cons-percentage 0.6)
+      gc-cons-percentage most-positive-fixnum)
 
 (add-hook 'emacs-startup-hook
           (lambda ()
@@ -24,8 +27,8 @@
             (setq gc-cons-percentage 0.1)))
 
 (modify-all-frames-parameters
- '((height . 53)
-   (width . 202)
+ '((height . 56)
+   (width . 214)
    (tool-bar-lines . 0)
    (vertical-scroll-bars . nil)))
 
