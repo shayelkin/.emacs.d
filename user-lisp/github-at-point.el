@@ -31,12 +31,14 @@ If there are multiple GitHub hosted remotes, returns the first one."
   "Generate a GitHub link for current file position and copy it into the clipboard."
   (interactive)
   (if-let* ((filename (buffer-file-name))
+            (remote (github-at-point--remote-url))
             (base-url (replace-regexp-in-string
                        "\\(git@github\\.com:\\|https://github\\.com/\\)\\(.*\\)\\.git$"
                        "https://github.com/\\2"
-                       (github-at-point--remote-url)))
-            (relative-path (file-relative-name filename
-                                               (car (github-at-point--git "rev-parse" "--show-toplevel"))))
+                       remote))
+            (relative-path (file-relative-name
+                            filename
+                            (car (github-at-point--git "rev-parse" "--show-toplevel"))))
             (rev (car (github-at-point--git "rev-parse" "HEAD")))
             (url (format "%s/blob/%s/%s#L%d"
                                 base-url
