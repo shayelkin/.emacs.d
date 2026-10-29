@@ -312,15 +312,11 @@
   :hook ((magit-pre-refresh  . diff-hl-magit-pre-refresh)
          (magit-post-refresh . diff-hl-magit-post-refresh)))
 
-(use-package vterm
-  :bind ("<f12>" . vterm-other-window)
-  :config
-  ;; `vterm--get-color' directly reads the `default' face, causing `face-remap-add-relative' to have
-  ;; nil effect. So have to override `vterm--get-color' itself.
-  (define-advice vterm--get-color (:around (fn index &rest args))
-    (if (and (= index -1) (not (memq :underline args)) (not (memq :inverse-video args)))
-        (if (memq :foreground args) "white" "black")
-      (apply fn index args))))
+(use-package ghostel
+  :vc (:url "https://github.com/dakra/ghostel"
+       :lisp-dir "lisp"
+       :rev :newest)
+  :bind ("<f12>" . ghostel))
 
 (use-package deadgrep
   :ensure-system-package (rg . ripgrep)
