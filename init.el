@@ -37,8 +37,6 @@
   (require 'use-package)
   (require 'use-package-ensure))
 
-(eval-when-compile
-  (require 'use-package-ensure))
 (setq use-package-always-ensure t)
 
 (setq use-package-compute-statistics t
@@ -338,6 +336,8 @@
   :hook ((c++-ts-mode java-ts-mode js-ts-mode) . which-function-mode))
 
 (use-package eglot
+  :config
+  (add-to-list 'eglot-server-programs '((swift-mode swift-ts-mode) . ("sourcekit-lsp")))
   :bind ((:map eglot-mode-map
                ("C-c i" . eglot-find-implementation)
                ("C-c d" . eglot-find-declaration)
@@ -415,36 +415,36 @@
 
 ;; `treesit-auto' is slow to load. Simply define major-mode-remap-alist for the
 ;; built-in modes instead:
-(setq major-mode-remap-alist '((conf-toml-mode . toml-ts-mode)
-                               (ruby-mode . ruby-ts-mode)
-                               (python-mode . python-ts-mode)
-                               (js-json-mode . json-ts-mode)
+(setq major-mode-remap-alist '((awk-mode        . awk-ts-mode)
+                               (c++-mode        . c++-ts-mode)
+                               (c-mode          . c-ts-mode)
+                               (conf-toml-mode  . toml-ts-mode)
+                               (csharp-mode     . csharp-ts-mode)
+                               (css-mode        . css-ts-mode)
+                               (java-mode       . java-ts-mode)
                                (javascript-mode . js-ts-mode)
-                               (js-mode . js-ts-mode)
-                               (java-mode . java-ts-mode)
-                               (sgml-mode . html-ts-mode)
-                               (mhtml-mode . html-ts-mode)
-                               (css-mode . css-ts-mode)
-                               (c++-mode . c++-ts-mode)
-                               (csharp-mode . csharp-ts-mode)
-                               (c-mode . c-ts-mode)
-                               (sh-mode . bash-ts-mode)
-                               (awk-mode . awk-ts-mode)
-                               (perl-mode . perl-ts-mode)))
+                               (js-json-mode    . json-ts-mode)
+                               (js-mode         . js-ts-mode)
+                               (mhtml-mode      . html-ts-mode)
+                               (perl-mode       . perl-ts-mode)
+                               (python-mode     . python-ts-mode)
+                               (ruby-mode       . ruby-ts-mode)
+                               (sgml-mode       . html-ts-mode)
+                               (sh-mode         . bash-ts-mode)))
 
 ;; These ts-modes have no non-ts fallback and/or their `auto-mode-alist' setup runs only
 ;; after load.
-(dolist (entry '(("\\.ya?ml\\'"    . yaml-ts-mode)
-                 ("/Dockerfile\\'" . dockerfile-ts-mode)
-                 ("\\.go\\'"       . go-ts-mode)
+(dolist (entry '(("/Dockerfile\\'" . dockerfile-ts-mode)
                  ("/go\\.mod\\'"   . go-mod-ts-mode)
+                 ("\\.exs?\\'"     . elixir-ts-mode)
+                 ("\\.heex\\'"     . heex-ts-mode)
+                 ("\\.go\\'"       . go-ts-mode)
                  ("\\.lua\\'"      . lua-ts-mode)
+                 ("\\.mjs\\'"      . js-ts-mode)
                  ("\\.rs\\'"       . rust-ts-mode)
                  ("\\.ts\\'"       . typescript-ts-mode)
                  ("\\.tsx\\'"      . tsx-ts-mode)
-                 ("\\.heex\\'"     . heex-ts-mode)
-                 ("\\.exs?\\'"     . elixir-ts-mode)
-                 ("\\.mjs\\'"      . js-ts-mode)))
+                 ("\\.ya?ml\\'"    . yaml-ts-mode)))
   (unless (assoc (car entry) auto-mode-alist)
     (push entry auto-mode-alist)))
 
